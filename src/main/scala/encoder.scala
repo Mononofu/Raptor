@@ -18,7 +18,7 @@ class Encoder {
 		
 		// == RFC 5053, 4.2: Example Parameter Derivation Algorithm 
 		// maximum number of symbols to be transported in a single packet
-		val G = math.min(math.ceil(P*Kmin/F), P/Al, Gmax)
+		val G = math.min(math.min(math.ceil(P*Kmin/F), P/Al), Gmax)
 
 		// symbol size
 		val T = math.floor(P/(Al*G))*Al
@@ -27,14 +27,14 @@ class Encoder {
 		val Kt = math.ceil(F/T)
 
 		// number of source blocks
-		val Z = math.ceil(Kt/Kmax)
+		val Z = math.ceil(Kt/Constants.Kmax)
 
 		// number of sub-blocks in each source block,
 		val N = math.min(math.ceil(math.ceil(Kt/Z)*T/W), T/Al)
 
 		// == 5.3.1.2: Source Block and Sub-Block Partitioning
-		val (kl, ks, zl, zs) = Tools.Partition(Kt, Z)
-		val (tl, ts, nl, ns) = Tools.Partition(T/Al, N)	 				
+		val (kl, ks, zl, zs) = Tools.Partition(Kt.toInt, Z.toInt)
+		val (tl, ts, nl, ns) = Tools.Partition((T/Al).toInt, N.toInt)	 				
 	}
 
 
