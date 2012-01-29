@@ -14,7 +14,7 @@ class RelationshipSpec extends FlatSpec with ShouldMatchers {
       ((X-1)*(X-2)) should be < (2*K)
     }
   }
-
+ 
   "S" should "be the smallest prime such that S >= ceil(0.01*K) + X" in {
     for(K <- 1 to Constants.Kmax) {
       val X = Tools.getX(K)

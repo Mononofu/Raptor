@@ -8,10 +8,10 @@ case class Symbol(n: Int) {
 object Tools {
 	// RFC 5053, 5.4.4.1: Random Generator
 	// produces a random number between 0 and m-1 inclusive
-	def rand(X: Int, i: Int, m: Int) = (Constants.V0( (X + i) % 256 ) ^ Constants.V1( ((X/256.).toInt + i) % 256)) % m
+	def Rand(X: Int, i: Int, m: Int) = (Constants.V0( (X + i) % 256 ) ^ Constants.V1( ((X/256.).toInt + i) % 256)) % m
 
 	// RFC 5053, 5.4.4.2: Degree Generator
-	def deg(v: Int) = v match {
+	def Deg(v: Int) = v match {
 		case n if n < 10241 => 1
 		case n if n < 491582 => 2
 		case n if n < 712794 => 3
@@ -28,11 +28,7 @@ object Tools {
 		val a = triple._2
 		var b = triple._3
 
-		val X = getX(K)
-		val S = getS(K, X)
-		val H = getH(K, S)
-
-		val L = K+S+H
+		val L = getL(K)
 		val Lprime = smallestPrimeGreaterEqualThan(L)
 
 		while(b >= L)
@@ -49,6 +45,34 @@ object Tools {
 		result
 	}
 
+	// RFC 5053, 5.4.4.4: Triple Generator
+	def Trip(K: Int, X: Int) = {
+		val L = getL(K)
+		val Lprime = smallestPrimeGreaterEqualThan(L)
+
+		val Q = 65521
+		val J = Constants.J(K)
+
+		val A = (53591 + J*997) % Q
+		val B = 10267*(J+1) % Q
+		val Y = (B + X*A) % Q
+		val v = Rand(Y, 0, math.pow(2, 20).toInt)
+		val d = Deg(v)
+		val a = 1 + Rand(Y, 1, Lprime-1)
+		val b = Rand(Y, 2, Lprime)
+
+		(d, a, b)
+	}
+
+	def Partition(I: Int, J: Int): (Int, Int, Int, Int) = {
+		val IL = math.ceil(1.*I/J).toInt
+		val IS = math.floor(1.*I/J).toInt
+		val JL = I - IS * J 
+		val JS = J - JL
+		(IL, IS, JL, JS)
+	}
+
+
 	def getX(K: Int) = math.ceil(0.5 * (math.sqrt(8*K + 1) + 1)).toInt
 	def getS(K: Int, X: Int) = {
 		if(K <= Constants.Kmax) Constants.S(K)
@@ -58,8 +82,17 @@ object Tools {
 		if(K <= Constants.Kmax) Constants.H(K)
 		else (2 to 99).filter(H => choose(H, math.ceil(H/2.).toInt) >= K + S).head
 	}
+	def getL(K: Int) = {
+		val X = getX(K)
+		val S = getS(K, X)
+		val H = getH(K, S)
+		K + S + H
+	}
 
-	def choose(i: Int, j: Int) = binomialCoefficient(i, j)
+	def choose(i: Int, j: Int): Int = {
+		if( i == 2*j && i <= 20) Constants.Choose(i)
+		else binomialCoefficient(i, j).toInt
+	}
 	def binomialCoefficient(n:Int, k:Int): BigInt = fact(n) / (fact(k) * fact(n-k))
    	def fact(n: Int): BigInt = Constants.Factorials(n)
    	def smallestPrimeGreaterEqualThan(n: Int): Int = Constants.Primes.filter(_ >= n).head

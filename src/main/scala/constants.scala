@@ -34,5 +34,8 @@ object Constants {
 
 	val H: List[Int] = List(2) ++ Source.fromInputStream(getClass.getClassLoader.getResourceAsStream("H.constant")).getLines.map(_.toInt).toList
 
+	val Choose: List[Int] = List(-1, -1) ++ Source.fromInputStream(getClass.getClassLoader.getResourceAsStream("choose.constant")).getLines.map(_.toInt).toList
+
 	val Kmax = 8192
+
 }
